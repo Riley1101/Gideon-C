@@ -11,11 +11,24 @@ void disassembleChunk(Chunk *chunk, const char *name) {
   }
 }
 
+/**
+ * @brief simple test instruction
+ * @param name
+ * @param offset
+ * @return
+ */
 static int simpleInstruction(const char *name, int offset) {
   printf("%s\n", name);
   return offset + 1;
 }
 
+/**
+ * @brief instruction for constants
+ * @param name
+ * @param chunk
+ * @param offset
+ * @return
+ */
 static int constantInstruction(const char *name, Chunk *chunk, int offset) {
   uint8_t constant = chunk->code[offset + 1];
   printf("%-16s %4d '", name, constant);
@@ -24,12 +37,28 @@ static int constantInstruction(const char *name, Chunk *chunk, int offset) {
   return offset + 2;
 }
 
+
+/**
+ * @brief disassemble instruction to print and debug
+ *
+ * @param chunk 
+ * @param offset 
+ * @return 
+ */
 int disassembleInstruction(Chunk *chunk, int offset) {
   printf("%04d", offset);
+  if (offset > 0 && chunk->lines[offset] == chunk->lines[offset - 1]) {
+    printf("   | ");
+  } else {
+    printf("%4d ", chunk->lines[offset]);
+  }
+
   uint8_t instruction = chunk->code[offset];
   switch (instruction) {
   case OP_RETURN:
     return simpleInstruction("OP_RETURN", offset);
+  case OP_CONSTANT:
+    return constantInstruction("OP_CONSTANT", chunk, offset);
   default:
     printf("Unknow  opcode %d\n", instruction);
     return offset + 1;
